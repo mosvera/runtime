@@ -16,7 +16,8 @@
       "properties": {
         "templates": { "type": "object", "additionalProperties": { "type": "object" } },
         "modifiers": { "type": "object", "additionalProperties": { "type": "object" } },
-        "palettes": { "type": "object", "additionalProperties": { "type": "object" } }
+        "palettes": { "type": "object", "additionalProperties": { "type": "object" } },
+        "compositions": { "type": "object", "additionalProperties": { "type": "object" } }
       },
       "additionalProperties": false
     },
@@ -32,10 +33,10 @@
         "required": ["strategy"]
       }
     },
-    "input_kind": { "type": "string", "enum": ["composition", "template"] },
+    "input_kind": { "type": "string", "enum": ["composition", "template", "palette", "composition_ref"] },
     "input": {
-      "description": "For kind=resolution: the composition or template document to resolve.",
-      "type": "object"
+      "description": "For kind=resolution: the composition, template, palette document, or composition reference to resolve.",
+      "anyOf": [{ "type": "object" }, { "type": "string" }]
     },
     "manifest": {
       "description": "For kind=compilation: the provider capability manifest.",
@@ -89,6 +90,7 @@
                 "reference_cycle",
                 "inheritance_cycle",
                 "multiple_inheritance_unsupported",
+                "unknown_reference",
                 "required_unsupported"
               ]
             },

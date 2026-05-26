@@ -1,28 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// Inheritance resolution (MEP-0002). Single inheritance: a template's lineage
-// is a linear chain, folded root-first with the merge algebra (child wins).
-// The $extends graph MUST be acyclic; cycle detection is a conformance
-// requirement.
+// Palette inheritance resolution. Palette-to-palette `$extends` follows the
+// same single-inheritance contract as templates.
 
 import { merge } from "./merge.ts";
 import { ResolutionError, type Json, type JsonObject, type MergeStrategies, type Registry } from "./types.ts";
 
-/**
- * Resolve a template through its `$extends` chain into a canonical aesthetic
- * object (no `$extends` remaining). Detects inheritance cycles and rejects
- * multiple inheritance (a list-valued `$extends`).
- */
-export function resolveTemplate(
-  doc: JsonObject,
+export function resolvePalette(
+  paletteOrId: JsonObject | string,
   registry: Registry,
   strategies: MergeStrategies,
 ): JsonObject {
-  const templates = registry.templates ?? {};
+  const palettes = registry.palettes ?? {};
+  const first = typeof paletteOrId === "string" ? palettes[paletteOrId] : paletteOrId;
+  if (first === undefined) throw new ResolutionError("unknown_reference");
+
   const chain: JsonObject[] = [];
   const seen = new Set<string>();
 
-  let current: JsonObject | undefined = doc;
+  let current: JsonObject | undefined = first;
   while (current !== undefined) {
     const id = current["id"];
     if (typeof id === "string") {
@@ -36,12 +32,11 @@ export function resolveTemplate(
     if (Array.isArray(parent)) throw new ResolutionError("multiple_inheritance_unsupported");
     if (typeof parent !== "string") throw new ResolutionError("inheritance_cycle");
 
-    const next: JsonObject | undefined = templates[parent];
+    const next: JsonObject | undefined = palettes[parent];
     if (next === undefined) throw new ResolutionError("unknown_reference");
     current = next;
   }
 
-  // Fold root-first (lowest precedence) up to the template itself (highest).
   let acc: JsonObject = {};
   for (let i = chain.length - 1; i >= 0; i--) {
     acc = merge(acc, chain[i]!, strategies);

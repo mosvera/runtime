@@ -15,6 +15,9 @@ export type Json =
 
 export type JsonObject = { [key: string]: Json };
 
+export type RegistryKind = "template" | "modifier" | "palette" | "composition";
+export type RegistryDocument = JsonObject;
+
 /**
  * List-merge strategy for a field, per MEP-0001. Declared in a primitive's
  * schema; carried alongside the data here. Index-based merge is never used.
@@ -33,6 +36,43 @@ export interface Registry {
   templates?: Record<string, JsonObject>;
   modifiers?: Record<string, JsonObject>;
   palettes?: Record<string, JsonObject>;
+  compositions?: Record<string, JsonObject>;
+}
+
+export interface LoadedProject {
+  registry: Registry;
+  manifests: Record<string, CapabilityManifest>;
+  strategies: MergeStrategies;
+}
+
+export interface RegistryEntrySummary {
+  kind: RegistryKind;
+  id: string;
+  extends?: string;
+  base?: string;
+}
+
+export interface RegistryReference {
+  kind: RegistryKind;
+  id: string;
+  field: string;
+}
+
+export type RegistryDiagnosticCode =
+  | "unknown_reference"
+  | "invalid_document"
+  | "duplicate_id"
+  | "unsafe_filename"
+  | "schema_failure";
+
+export interface RegistryDiagnostic {
+  code: RegistryDiagnosticCode;
+  message: string;
+  kind?: RegistryKind | "capability-manifest";
+  id?: string;
+  path?: string;
+  reference?: RegistryReference;
+  errors?: JsonObject[];
 }
 
 /** Provider compilation types (MEP-0003). */
@@ -61,6 +101,7 @@ export type CompileResult =
 export type ResolutionErrorKind =
   | "inheritance_cycle"
   | "reference_cycle"
+  | "unknown_reference"
   | "multiple_inheritance_unsupported";
 
 export class ResolutionError extends Error {

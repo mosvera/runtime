@@ -1,7 +1,7 @@
 {
   "name": "@mosvera/runtime",
   "version": "0.1.0",
-  "description": "Reference runtime for Mosvera. Validate and resolve Mosvera JSON, apply merge and compile semantics, and ship the v0.1 schemas for JavaScript and TypeScript apps.",
+  "description": "TypeScript/JavaScript runtime for Mosvera. Load aesthetic registries, resolve named compositions, compile neutral tokens, validate schemas, and apply merge/compile semantics.",
   "license": "Apache-2.0",
   "type": "module",
   "homepage": "https://mosvera.io",
@@ -29,6 +29,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js"
     },
     "./schemas/*": "./dist/schemas/*"
   },

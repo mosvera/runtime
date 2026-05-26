@@ -25,9 +25,9 @@ export function resolveComposition(
   const modifiers = registry.modifiers ?? {};
 
   const baseName = composition["base"];
-  if (typeof baseName !== "string") throw new ResolutionError("reference_cycle");
+  if (typeof baseName !== "string") throw new ResolutionError("unknown_reference");
   const baseDoc = templates[baseName];
-  if (baseDoc === undefined) throw new ResolutionError("reference_cycle");
+  if (baseDoc === undefined) throw new ResolutionError("unknown_reference");
 
   const baseResolved = resolveTemplate(baseDoc, registry, strategies);
   let acc = merge({}, baseResolved, strategies);
@@ -35,9 +35,9 @@ export function resolveComposition(
   const modifierRefs = composition["modifiers"];
   if (Array.isArray(modifierRefs)) {
     for (const ref of modifierRefs) {
-      if (typeof ref !== "string") throw new ResolutionError("reference_cycle");
+      if (typeof ref !== "string") throw new ResolutionError("unknown_reference");
       const mod = modifiers[ref];
-      if (mod === undefined) throw new ResolutionError("reference_cycle");
+      if (mod === undefined) throw new ResolutionError("unknown_reference");
       acc = merge(acc, mod, strategies);
     }
   }

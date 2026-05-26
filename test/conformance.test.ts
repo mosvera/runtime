@@ -12,6 +12,8 @@ import { fileURLToPath } from "node:url";
 import {
   resolveTemplate,
   resolveComposition,
+  resolvePalette,
+  resolveNamedComposition,
   compile,
   ResolutionError,
   type JsonObject,
@@ -31,8 +33,8 @@ interface Vector {
   kind: "resolution" | "compilation";
   registry?: Registry;
   merge_strategies?: MergeStrategies;
-  input_kind?: "composition" | "template";
-  input?: JsonObject;
+  input_kind?: "composition" | "template" | "palette" | "composition_ref";
+  input?: JsonObject | string;
   manifest?: CapabilityManifest;
   canonical?: JsonObject;
   criticality?: Record<string, Criticality>;
@@ -51,10 +53,16 @@ function runResolution(v: Vector): unknown {
   const registry = v.registry ?? {};
   const strategies = v.merge_strategies ?? {};
   try {
-    const canonical =
-      v.input_kind === "template"
-        ? resolveTemplate(v.input!, registry, strategies)
-        : resolveComposition(v.input!, registry, strategies);
+    let canonical: JsonObject;
+    if (v.input_kind === "template") {
+      canonical = resolveTemplate(v.input as JsonObject, registry, strategies);
+    } else if (v.input_kind === "palette") {
+      canonical = resolvePalette(v.input as JsonObject, registry, strategies);
+    } else if (v.input_kind === "composition_ref") {
+      canonical = resolveNamedComposition(v.input as string, registry, strategies);
+    } else {
+      canonical = resolveComposition(v.input as JsonObject, registry, strategies);
+    }
     return { canonical };
   } catch (e) {
     if (e instanceof ResolutionError) return { status: "error", error: e.kind };
