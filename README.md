@@ -37,12 +37,12 @@ The TS pick is grounded in the MCP ecosystem (Anthropic's reference
 SDK is TS), mature JSON Schema tooling, and the largest AI-native
 dev audience — not because TS is anyone's day-to-day preference.
 
-A Python port is **committed-to** as a binding follow-on. The
-runtime architecture must keep semantic logic separable from
-TS-idiomatic glue so the Python port is a translation rather than
-a rewrite. The
-[conformance suite](https://github.com/mosvera/spec/tree/main/compliance) is the cross-language
-correctness contract.
+The Python peer runtime lives at
+[`mosvera/python`](https://github.com/mosvera/python) and uses the PyPI package
+name `mosvera`. The
+[conformance suite](https://github.com/mosvera/spec/tree/main/compliance) is
+the cross-language correctness contract; TypeScript is the first runtime, not
+the definition of Mosvera.
 
 ## Basic Use
 
@@ -90,7 +90,8 @@ servers, artifact adapters, and application code can apply.
 ## Modules (v0.1)
 
 The semantic core is **pure functions with no provider SDK dependencies**, so
-the committed Python port is a translation rather than a rewrite (ADR-0007).
+the Python runtime can mirror the same contract without inheriting JS/TS
+implementation details (ADR-0007).
 
 | Module | Responsibility |
 |--------|---------------|
@@ -121,7 +122,7 @@ bindings with that language's native equivalents.
 
 - **Semantic core** (`merge`/`resolve`/`compose`/`registry`/`tokens`/`compile`):
   **zero provider SDK dependencies**, mostly pure functions — this is what the
-  committed Python port translates.
+  Python peer runtime mirrors.
 - **Boundary modules** (`parser`/`validator`): depend on `yaml` and `ajv`.
   These are per-language bindings, not core logic; the portable artifacts they
   bind to (the YAML/JSON formats and the JSON Schemas) are language-neutral.
@@ -130,16 +131,15 @@ bindings with that language's native equivalents.
 
 ## Status
 
-Phase 6D. The semantic core **passes all 25 conformance vectors** in
+Phase 6D/6E. The semantic core **passes all 25 conformance vectors** in
 the compliance vectors mirrored from [`mosvera/spec`](https://github.com/mosvera/spec/tree/main/compliance);
 the parser, validator, registry, token, and Node-boundary tests bring the
 runtime suite to 58 tests, all green under a strict typecheck. Run `npm test`
 and `npm run typecheck`.
 
-This is independent cross-implementation agreement: the conformance vectors
-were authored and verified against a separate reference oracle, and this TS
-runtime now reproduces the same canonical models and compilation outcomes for
-every vector — the ADR-0007 contract in action.
+The Python runtime is checked against the same vector set before publication,
+so the public contract is the spec plus conformance suite rather than either
+runtime implementation by itself.
 
 ## Layout
 
