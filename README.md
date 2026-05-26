@@ -13,6 +13,11 @@ and applies the provider compilation contract.
 npm install @mosvera/runtime
 ```
 
+New users should start with the
+[`10-minute quickstart`](https://github.com/mosvera/spec/blob/main/docs/guides/10-minute-quickstart.md),
+which includes a TypeScript runtime smoke after the Claude Desktop and MCP
+paths.
+
 ## Which Package Do I Need?
 
 Use `@mosvera/runtime` when your app needs to load a user's local registry,
