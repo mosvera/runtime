@@ -4,9 +4,10 @@ SPDX-License-Identifier: CC-BY-4.0
 
 # @mosvera/runtime
 
-The Mosvera TypeScript/JavaScript runtime parses Mosvera documents, loads
-aesthetic registries, resolves named compositions, compiles neutral design
-tokens, validates structures, and applies the provider compilation contract.
+The Mosvera TypeScript/JavaScript runtime is the app-developer entrypoint for
+Mosvera. It loads local aesthetic registries, resolves named aesthetics from
+composition documents, validates structures, compiles neutral design tokens,
+and applies the provider compilation contract.
 
 ```bash
 npm install @mosvera/runtime
@@ -14,16 +15,16 @@ npm install @mosvera/runtime
 
 ## Which Package Do I Need?
 
-Use `@mosvera/runtime` when your app needs to validate Mosvera documents,
-load a user's aesthetic registry, resolve templates/modifiers/palettes/
-compositions, or produce the canonical model and portable design tokens that
-other integrations consume.
+Use `@mosvera/runtime` when your app needs to load a user's local registry,
+resolve a named aesthetic, and compile the canonical model into portable
+tokens or provider-ready payloads. The runtime does not depend on
+`mosvera.io` at execution time.
 
 Use `@mosvera/provider-*` packages when you want to turn that resolved model
 into provider payloads for OpenAI, FLUX, or SDXL.
 
-Use `@mosvera/mcp` when you want agents, editors, or automation tools to call
-Mosvera through MCP tools instead of importing the JavaScript runtime directly.
+Use `@mosvera/mcp` when agents, editors, or automation tools should call
+Mosvera through MCP tools instead of importing this package directly.
 
 ## Language
 
@@ -46,7 +47,7 @@ the definition of Mosvera.
 
 ## Basic Use
 
-Resolve a named aesthetic from a project registry and compile portable tokens:
+Load a registry, resolve a named aesthetic, and compile portable tokens:
 
 ```ts
 import {
@@ -81,6 +82,26 @@ const composition = createComposition("executive-editorial", "base_t", {
 });
 
 saveProjectDocument("./my-aesthetic-system", "composition", composition);
+```
+
+Exchange a named aesthetic as a portable pack:
+
+```ts
+import {
+  exportAestheticPack,
+  importAestheticPack,
+  validateAestheticPack,
+} from "@mosvera/runtime";
+
+const pack = exportAestheticPack("executive-editorial", project.registry, {
+  name: "Executive Editorial",
+});
+
+const diagnostics = validateAestheticPack(pack);
+if (diagnostics.length === 0) {
+  const imported = importAestheticPack(project.registry, pack);
+  console.log(imported.plan.installed_entrypoint.id);
+}
 ```
 
 The runtime does **not** generate PowerPoint decks, HTML reports, images, or
@@ -131,15 +152,15 @@ bindings with that language's native equivalents.
 
 ## Status
 
-Phase 6D/6E. The semantic core **passes all 25 conformance vectors** in
+Phase 6G complete. The semantic core **passes all 25 conformance vectors** in
 the compliance vectors mirrored from [`mosvera/spec`](https://github.com/mosvera/spec/tree/main/compliance);
-the parser, validator, registry, token, and Node-boundary tests bring the
-runtime suite to 58 tests, all green under a strict typecheck. Run `npm test`
-and `npm run typecheck`.
+the parser, validator, registry, pack, token, Node-boundary, and smoke tests
+bring the runtime suite to 67 tests, all green under a strict typecheck. Run
+`npm run ci`.
 
-The Python runtime is checked against the same vector set before publication,
-so the public contract is the spec plus conformance suite rather than either
-runtime implementation by itself.
+The Python runtime is published as `mosvera` and checked against the same
+vector set, so the public contract is the spec plus conformance suite rather
+than either runtime implementation by itself.
 
 ## Layout
 
