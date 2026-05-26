@@ -12,6 +12,18 @@ provider compilation contract.
 npm install @mosvera/runtime
 ```
 
+## Which Package Do I Need?
+
+Use `@mosvera/runtime` when your app needs to validate Mosvera documents,
+resolve templates/modifiers/compositions, or produce the canonical model that
+other integrations consume.
+
+Use `@mosvera/provider-*` packages when you want to turn that resolved model
+into provider payloads for OpenAI, FLUX, or SDXL.
+
+Use `@mosvera/mcp` when you want agents, editors, or automation tools to call
+Mosvera through MCP tools instead of importing the JavaScript runtime directly.
+
 ## Language
 
 TypeScript first, per
@@ -29,8 +41,8 @@ correctness contract.
 
 ## Modules (v0.1)
 
-The semantic core is **pure functions with zero runtime dependencies**, so the
-committed Python port is a translation rather than a rewrite (ADR-0007).
+The semantic core is **pure functions with no provider SDK dependencies**, so
+the committed Python port is a translation rather than a rewrite (ADR-0007).
 
 | Module | Responsibility |
 |--------|---------------|

@@ -1,7 +1,7 @@
 {
   "name": "@mosvera/runtime",
   "version": "0.1.0",
-  "description": "Reference runtime for Mosvera — a declarative runtime for aesthetic intent. Parses, resolves inheritance, merges modifiers, composes primitives, and applies the provider compilation contract. Zero runtime dependencies; pure semantic core.",
+  "description": "Reference runtime for Mosvera. Validate and resolve Mosvera JSON, apply merge and compile semantics, and ship the v0.1 schemas for JavaScript and TypeScript apps.",
   "license": "Apache-2.0",
   "type": "module",
   "homepage": "https://mosvera.io",
