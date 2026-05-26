@@ -1,6 +1,6 @@
 {
   "name": "@mosvera/runtime",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript/JavaScript runtime for Mosvera. Load aesthetic registries, resolve named compositions, compile neutral tokens, validate schemas, and apply merge/compile semantics.",
   "license": "Apache-2.0",
   "type": "module",
