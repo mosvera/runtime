@@ -63,16 +63,66 @@ export type RegistryDiagnosticCode =
   | "invalid_document"
   | "duplicate_id"
   | "unsafe_filename"
-  | "schema_failure";
+  | "schema_failure"
+  | "strategy_conflict";
 
 export interface RegistryDiagnostic {
   code: RegistryDiagnosticCode;
   message: string;
-  kind?: RegistryKind | "capability-manifest";
+  kind?: RegistryKind | "capability-manifest" | "aesthetic-pack";
   id?: string;
   path?: string;
   reference?: RegistryReference;
   errors?: JsonObject[];
+}
+
+export interface AestheticPackEntrypoint {
+  kind: "composition";
+  id: string;
+}
+
+export interface AestheticPack {
+  $schema?: string;
+  kind: "mosvera.aesthetic_pack";
+  version: "0.1";
+  id: string;
+  name?: string;
+  description?: string;
+  entrypoint: AestheticPackEntrypoint;
+  documents: Registry;
+  merge_strategies?: MergeStrategies;
+}
+
+export type AestheticPackConflictStrategy = "auto_rename" | "fail" | "replace";
+export type AestheticPackStrategyConflict = "fail" | "replace";
+
+export interface AestheticPackOperation {
+  kind: RegistryKind;
+  original_id: string;
+  id: string;
+  action: "add" | "rename" | "replace";
+}
+
+export interface AestheticPackImportPlan {
+  valid: boolean;
+  pack_id: string;
+  entrypoint: AestheticPackEntrypoint;
+  installed_entrypoint: AestheticPackEntrypoint;
+  operations: AestheticPackOperation[];
+  rename_map: Record<RegistryKind, Record<string, string>>;
+  merge_strategies: {
+    add: string[];
+    replace: string[];
+    conflicts: string[];
+  };
+  diagnostics: RegistryDiagnostic[];
+}
+
+export interface AestheticPackImportResult {
+  registry: Registry;
+  strategies: MergeStrategies;
+  pack: AestheticPack;
+  plan: AestheticPackImportPlan;
 }
 
 /** Provider compilation types (MEP-0003). */

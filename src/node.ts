@@ -15,7 +15,9 @@ import {
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import {
   createValidator,
+  validateAestheticPack,
   parse,
+  type AestheticPack,
   type CapabilityManifest,
   type DocumentKind,
   type Json,
@@ -51,6 +53,7 @@ export class RegistryProjectError extends Error {
 }
 
 const DOC_EXT = /\.(json|ya?ml)$/i;
+const PACK_EXT = /\.mosvera\.json$/i;
 const SAFE_ID = /^[a-z][a-z0-9_-]*$/;
 
 const ID_TO_KIND: Record<string, DocumentKind> = {
@@ -198,6 +201,9 @@ function loadDocFile(
     project.manifests[provider] = doc as unknown as CapabilityManifest;
     return;
   }
+  if (kind === "aesthetic-pack") {
+    throw new Error(`aesthetic pack files are not registry documents: "${relFile}"`);
+  }
   addRegistryDoc(project.registry, diagnostics, kind, requireId(doc, kind, relFile), doc, relFile);
 }
 
@@ -217,7 +223,7 @@ export function loadProject(directory: string, options: LoadProjectOptions = {})
   }
 
   for (const entry of readdirSync(root, { withFileTypes: true })) {
-    if (entry.isFile() && DOC_EXT.test(entry.name) && entry.name !== "merge-strategies.json") {
+    if (entry.isFile() && DOC_EXT.test(entry.name) && !PACK_EXT.test(entry.name) && entry.name !== "merge-strategies.json") {
       loadDocFile(root, entry.name, validator, project, diagnostics);
     }
   }
@@ -272,6 +278,19 @@ function atomicWrite(path: string, body: string): void {
   renameSync(temp, path);
 }
 
+function ensureSafePackPath(filePath: string): void {
+  const file = basename(filePath);
+  if (file.startsWith(".") || !PACK_EXT.test(file)) {
+    throw new RegistryProjectError(`unsafe aesthetic pack filename "${filePath}"`, [
+      {
+        code: "unsafe_filename",
+        path: filePath,
+        message: `aesthetic pack path must end with .mosvera.json and must not be a dotfile: ${filePath}`,
+      },
+    ]);
+  }
+}
+
 export function saveProjectDocument(
   directory: string,
   kind: RegistryKind,
@@ -306,4 +325,29 @@ export function writeMergeStrategies(
   const path = join(root, "merge-strategies.json");
   assertWithin(root, path);
   atomicWrite(path, stableStringify(strategies as unknown as Json));
+}
+
+export function loadAestheticPack(path: string, options: LoadProjectOptions = {}): AestheticPack {
+  ensureSafePackPath(path);
+  const validator = options.validator ?? createValidator();
+  const pack = readDoc(path) as unknown as AestheticPack;
+  const diagnostics = validateAestheticPack(pack, { validator });
+  if (diagnostics.length > 0) {
+    throw new RegistryProjectError(`invalid aesthetic pack "${path}"`, diagnostics);
+  }
+  return pack;
+}
+
+export function writeAestheticPack(
+  path: string,
+  pack: AestheticPack,
+  options: SaveProjectDocumentOptions = {},
+): void {
+  ensureSafePackPath(path);
+  const validator = options.validator ?? createValidator();
+  const diagnostics = validateAestheticPack(pack, { validator });
+  if (diagnostics.length > 0) {
+    throw new RegistryProjectError(`invalid aesthetic pack "${path}"`, diagnostics);
+  }
+  atomicWrite(path, stableStringify(pack as unknown as Json));
 }

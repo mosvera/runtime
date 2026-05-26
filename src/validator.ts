@@ -20,7 +20,8 @@ export type DocumentKind =
   | "template"
   | "modifier"
   | "palette"
-  | "capability-manifest";
+  | "capability-manifest"
+  | "aesthetic-pack";
 
 export interface ValidationIssue {
   /** JSON Pointer to the offending location, "" for the document root. */
@@ -44,6 +45,7 @@ const SCHEMA_FILES = [
   "modifier.schema.json",
   "palette.schema.json",
   "capability-manifest.schema.json",
+  "aesthetic-pack.schema.json",
 ];
 
 const KIND_TO_ID: Record<DocumentKind, string> = {
@@ -52,6 +54,7 @@ const KIND_TO_ID: Record<DocumentKind, string> = {
   modifier: "https://mosvera.io/schema/0.1/modifier",
   palette: "https://mosvera.io/schema/0.1/palette",
   "capability-manifest": "https://mosvera.io/schema/0.1/capability-manifest",
+  "aesthetic-pack": "https://mosvera.io/schema/0.1/aesthetic-pack",
 };
 
 function defaultSchemaDir(): string {

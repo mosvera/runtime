@@ -29,6 +29,13 @@ export {
   collectReferences,
   validateRegistry,
 } from "./registry.ts";
+export {
+  collectAestheticPackDependencies,
+  exportAestheticPack,
+  importAestheticPack,
+  previewAestheticPackImport,
+  validateAestheticPack,
+} from "./pack.ts";
 export { compileDesignTokens, toCssVariables } from "./tokens.ts";
 export { createValidator } from "./validator.ts";
 export type { DocumentKind, Validator, ValidationResult, ValidationIssue } from "./validator.ts";
@@ -53,6 +60,13 @@ export type {
   MergeStrategies,
   Registry,
   LoadedProject,
+  AestheticPack,
+  AestheticPackConflictStrategy,
+  AestheticPackEntrypoint,
+  AestheticPackImportPlan,
+  AestheticPackImportResult,
+  AestheticPackOperation,
+  AestheticPackStrategyConflict,
   LoweringAction,
   Criticality,
   CapabilityManifest,

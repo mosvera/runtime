@@ -12,8 +12,10 @@ import {
 import {
   RegistryProjectError,
   deleteProjectDocument,
+  loadAestheticPack,
   loadProject,
   saveProjectDocument,
+  writeAestheticPack,
   writeMergeStrategies,
 } from "../src/node.ts";
 
@@ -73,5 +75,25 @@ describe("@mosvera/runtime/node", () => {
     saveProjectDocument(dir, "template", createTemplate("base_t"), { createDirectory: true });
     deleteProjectDocument(dir, "template", "base_t");
     expect(loadProject(dir).registry.templates).toEqual({});
+  });
+
+  it("writes and loads aesthetic pack files without treating them as registry documents", () => {
+    const dir = tempProject();
+    const path = join(dir, "executive-editorial.mosvera.json");
+    const pack = {
+      $schema: "https://mosvera.io/schema/0.1/aesthetic-pack",
+      kind: "mosvera.aesthetic_pack" as const,
+      version: "0.1" as const,
+      id: "executive-editorial",
+      entrypoint: { kind: "composition" as const, id: "executive-editorial" },
+      documents: {
+        templates: { base: createTemplate("base") },
+        compositions: { "executive-editorial": createComposition("executive-editorial", "base") },
+      },
+    };
+    writeAestheticPack(path, pack);
+    expect(loadAestheticPack(path).entrypoint.id).toBe("executive-editorial");
+    expect(loadProject(dir).registry.templates).toEqual({});
+    expect(() => writeAestheticPack(join(dir, ".hidden.mosvera.json"), pack)).toThrow(RegistryProjectError);
   });
 });
