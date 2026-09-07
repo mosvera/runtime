@@ -54,7 +54,16 @@ export class RegistryProjectError extends Error {
 
 const DOC_EXT = /\.(json|ya?ml)$/i;
 const PACK_EXT = /\.mosvera\.json$/i;
+const REGISTRY_KIND_PREFIX = /^(template|modifier|palette|composition)\./i;
 const SAFE_ID = /^[a-z][a-z0-9_-]*$/;
+
+function isAestheticPackFile(file: string): boolean {
+  const name = basename(file);
+  if (!PACK_EXT.test(name)) return false;
+  // Registry docs are `<kind>.<id>.json`. An id of `mosvera` yields
+  // `palette.mosvera.json`, which must load as a registry document, not a pack.
+  return !REGISTRY_KIND_PREFIX.test(name);
+}
 
 const ID_TO_KIND: Record<string, DocumentKind> = {
   "https://mosvera.io/schema/0.1/template": "template",
@@ -223,7 +232,7 @@ export function loadProject(directory: string, options: LoadProjectOptions = {})
   }
 
   for (const entry of readdirSync(root, { withFileTypes: true })) {
-    if (entry.isFile() && DOC_EXT.test(entry.name) && !PACK_EXT.test(entry.name) && entry.name !== "merge-strategies.json") {
+    if (entry.isFile() && DOC_EXT.test(entry.name) && !isAestheticPackFile(entry.name) && entry.name !== "merge-strategies.json") {
       loadDocFile(root, entry.name, validator, project, diagnostics);
     }
   }

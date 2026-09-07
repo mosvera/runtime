@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   createComposition,
   createModifier,
+  createPalette,
   createTemplate,
 } from "../src/index.ts";
 import {
@@ -95,5 +96,32 @@ describe("@mosvera/runtime/node", () => {
     expect(loadAestheticPack(path).entrypoint.id).toBe("executive-editorial");
     expect(loadProject(dir).registry.templates).toEqual({});
     expect(() => writeAestheticPack(join(dir, ".hidden.mosvera.json"), pack)).toThrow(RegistryProjectError);
+  });
+
+  it("loads registry documents whose id is mosvera (OB-59048 PACK_EXT collision)", () => {
+    const dir = tempProject();
+    saveProjectDocument(dir, "template", createTemplate("base_t"), { createDirectory: true });
+    saveProjectDocument(dir, "template", createTemplate("mosvera"));
+    saveProjectDocument(dir, "modifier", createModifier("mosvera"));
+    saveProjectDocument(dir, "palette", createPalette("ink", { accent: "#111111" }));
+    saveProjectDocument(dir, "palette", createPalette("mosvera", { accent: "#000000" }));
+    saveProjectDocument(dir, "composition", createComposition("mosvera", "base_t"));
+    writeAestheticPack(join(dir, "executive-editorial.mosvera.json"), {
+      $schema: "https://mosvera.io/schema/0.1/aesthetic-pack",
+      kind: "mosvera.aesthetic_pack" as const,
+      version: "0.1" as const,
+      id: "executive-editorial",
+      entrypoint: { kind: "composition" as const, id: "executive-editorial" },
+      documents: {
+        templates: { base: createTemplate("base") },
+        compositions: { "executive-editorial": createComposition("executive-editorial", "base") },
+      },
+    });
+
+    const project = loadProject(dir);
+    expect(Object.keys(project.registry.templates ?? {}).sort()).toEqual(["base_t", "mosvera"]);
+    expect(Object.keys(project.registry.modifiers ?? {})).toEqual(["mosvera"]);
+    expect(Object.keys(project.registry.palettes ?? {}).sort()).toEqual(["ink", "mosvera"]);
+    expect(Object.keys(project.registry.compositions ?? {})).toEqual(["mosvera"]);
   });
 });
